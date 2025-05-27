@@ -44,13 +44,14 @@ local function get_intro_dimensions(lines)
 	return {x=lines_x,y=lines_y}
 end
 
+
 local function draw(buf,lines)
 	local centered_lines = {}
 	local offset_x =0
 	local offset_y =0
 	local spaces = {}
 	local spacesx = ""
-	local screen_dim 
+	local screen_dim
 	if center then
 		screen_dim = get_screen_dimensions(buf)
 		local intro_dim= get_intro_dimensions(lines)
@@ -96,6 +97,15 @@ end
 	vim.api.nvim_buf_set_lines(buf, 0, 0, true, spaces)
 	vim.api.nvim_buf_set_lines(buf, offset_y, offset_y, true, centered_lines)
 	lock_buf(buf)
+end
+
+local redraw_lines = {}
+local redraw_buf =-1
+local function redraw()
+	unlock_buf(redraw_buf)
+	vim.api.nvim_buf_set_lines(redraw_buf, 0, -1, true, {})
+	lock_buf(redraw_buf)
+	draw(redraw_buf, redraw_lines)
 end
 
 local function set_buf(buff)
@@ -165,6 +175,15 @@ local function set_intro(payload)
 	delete_buf(default_buff)
 	draw(intro_buff,intro)
 	set_options()
+
+	redraw_buf=intro_buff
+	redraw_lines=intro
+	vim.api.nvim_create_autocmd({ "WinResized", "VimResized" }, {
+			group = AUTOCMD_GROUP,
+			buffer = intro_buff,
+			callback = redraw
+		})
+
 end
 
 local function setup(options)
