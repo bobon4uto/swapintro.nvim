@@ -2,13 +2,13 @@
 Plugin for Neovim that replaces intro screen with your buffer.
 A half-fork of [eoh-bse/minintro.nvim](https://github.com/eoh-bse/minintro.nvim)
 
-##Installation
+## Installation
 ```lua
 --Plug
 plug 'bobon4uto/swapintro.nvim'
 ```
 You need to run setup, and provide your values if you dont want the defaults.
-##Example configuration:
+## Example configuration
 ```lua
 require('swapintro').setup( {
 intro = {
