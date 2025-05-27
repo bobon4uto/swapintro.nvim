@@ -12,6 +12,8 @@ local intro = {
 local buf_name = "intro"
 local buf_type = "none"
 local center = true
+local center_individually = false
+
 --helpers
 local function unlock_buf(buf)
 	vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
@@ -21,11 +23,14 @@ local function lock_buf(buf)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 end
 
-local function get_offset(buf)
+local function get_screen_dimensions(buf)
 	local window = vim.fn.bufwinid(buf)
 	local screen_width = vim.api.nvim_win_get_width(window)
 	local screen_height = vim.api.nvim_win_get_height(window) - vim.opt.cmdheight:get()
-	return {x=screen_width,y=screen_height}
+	return {x=screen_width-6,y=screen_height}
+	-- minus 3 from left side and right to make it symmetrical 
+	-- (not sure if its correct way to account for them, maybe there is some 
+	-- vim function that gives their size?)
 end
 
 local function get_intro_dimensions(lines)
@@ -45,12 +50,13 @@ local function draw(buf,lines)
 	local offset_y =0
 	local spaces = {}
 	local spacesx = ""
+	local screen_dim 
 	if center then
-		local screen_dim = get_offset(buf)
+		screen_dim = get_screen_dimensions(buf)
 		local intro_dim= get_intro_dimensions(lines)
 		local diffx=screen_dim.x-intro_dim.x
 		local diffy=screen_dim.y-intro_dim.y
-		if diffx<0 then 
+		if diffx<0 then
 			vim.notify("switchintro: intro wider than the screen, ignoring centering.",
 			vim.log.levels.WARN
 		)
@@ -59,8 +65,8 @@ local function draw(buf,lines)
 			vim.log.levels.WARN
 		)
 	else
-		offset_x =math.floor((screen_dim.x-intro_dim.x)/2) 
-		offset_y =math.floor((screen_dim.y-intro_dim.y)/2) 
+		offset_x =math.floor((screen_dim.x-intro_dim.x)/2)
+		offset_y =math.floor((screen_dim.y-intro_dim.y)/2)
 		for _ = 0,offset_y do
 			table.insert(spaces, "")
 		end
@@ -70,10 +76,21 @@ local function draw(buf,lines)
 
 	end
 	end
-	for _, line in ipairs(lines) do
-		table.insert(centered_lines, spacesx .. line)
-	end
-
+	if center_individually then
+		for _, line in ipairs(lines) do
+			local tmpdim = get_intro_dimensions({line,})
+			offset_x =math.floor((screen_dim.x-tmpdim.x)/2)
+			spacesx=""
+			for _ = 0,offset_x do
+				spacesx=spacesx.." "
+			end
+			table.insert(centered_lines, spacesx .. line)
+		end
+	else
+		for _, line in ipairs(lines) do
+			table.insert(centered_lines, spacesx .. line)
+		end
+end
 	unlock_buf(buf)
 
 	vim.api.nvim_buf_set_lines(buf, 0, 0, true, spaces)
@@ -119,7 +136,8 @@ end
 
 
 local function create_intro_buf()
-	local intro_buff = vim.api.nvim_create_buf(false, "unlisted")
+	local intro_buff = vim.api.nvim_create_buf(false, true)
+	-- I have no clue what scratch does
 	vim.api.nvim_buf_set_name(intro_buff, buf_name)
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = intro_buff })
 	vim.api.nvim_set_option_value("buftype", "nofile", { buf = intro_buff })
@@ -154,15 +172,17 @@ local function setup(options)
 	intro = options.intro or intro
 	buf_name = options.buf_name or buf_name
 	buf_type = options.buf_type or buf_type
-	center = options.center or center
-
-
+	if options.center ~= nil then
+	center = options.center
+	if center==true and options.center_individually~=nil then
+	center_individually  = options.center_individually
+end
+end
 	vim.api.nvim_create_autocmd("VimEnter", {
 		group = AUTOCMD_GROUP,
 		callback = set_intro,
 		once = true
 	})
-
 
 end
 
