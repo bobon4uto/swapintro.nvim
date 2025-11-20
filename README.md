@@ -26,13 +26,13 @@ center_individually = false
 }
 )
 ```
-`intro` is the text you want to be displayed.
-`buf_name` is what will be displayed instead of a filename.
-`buf_type` is what will be displayed instead of a filetype.
-`widechar` is needed if you use wide chars, and centering doesn't work.
-`center` if set to true, the text will be centered as solid block.
-`center_individually` if set to true, lines will be centered separatly.
-Note that `center_individually` will not work without `center` set to true.
+`intro` is the text you want to be displayed.  
+`buf_name` is what will be displayed instead of a filename.  
+`buf_type` is what will be displayed instead of a filetype.  
+`widechar` is needed if you use wide chars, and centering doesn't work.  
+`center` if set to true, the text will be centered as solid block.  
+`center_individually` if set to true, lines will be centered separatly.  
+Note that `center_individually` will not work without `center` set to true.  
 
 
 
