@@ -13,6 +13,8 @@ local buf_name = "intro"
 local widechar = false
 local buf_type = "none"
 local center = true
+local centerx = true
+local centery = true
 local center_individually = false
 
 --helpers
@@ -67,11 +69,16 @@ local function draw(buf, lines)
 		else
 			offset_x = math.floor((screen_dim.x - intro_dim.x) / 2)
 			offset_y = math.floor((screen_dim.y - intro_dim.y) / 2)
-			for _ = 0, offset_y do
-				table.insert(spaces, "")
+
+			if centery then
+				for _ = 0, offset_y do
+					table.insert(spaces, "")
+				end
 			end
-			for _ = 0, offset_x do
-				spacesx = spacesx .. " "
+			if centerx then
+				for _ = 0, offset_x do
+					spacesx = spacesx .. " "
+				end
 			end
 		end
 	end
@@ -126,7 +133,7 @@ local function trymatchdelete()
 end
 
 local function line80fix()
-	vim.opt_local.colorcolumn = "0" -- disable colorcolumn
+	vim.opt_local.colorcolumn = "0"              -- disable colorcolumn
 	id = vim.fn.matchadd("Normal", "\\%>80c", 12) --disable error for 80+
 	autocmd_id = vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 		pattern = { "*" },
@@ -134,11 +141,11 @@ local function line80fix()
 	}) -- logic to reanable it after entering any other buffer
 end
 local function set_options()
-	vim.opt_local.number = false -- disable line numbers
-	vim.opt_local.relativenumber = false -- disable relative line numbers
-	vim.opt_local.list = false -- disable displaying whitespace
+	vim.opt_local.number = false           -- disable line numbers
+	vim.opt_local.relativenumber = false   -- disable relative line numbers
+	vim.opt_local.list = false             -- disable displaying whitespace
 	vim.opt_local.fillchars = { eob = " " } -- do not display "~"
-	line80fix() -- disable 80 character line and error
+	line80fix()                            -- disable 80 character line and error
 end
 
 local function create_intro_buf()
@@ -186,6 +193,8 @@ local function setup(options)
 	widechar = options.widechar or widechar
 	buf_name = options.buf_name or buf_name
 	buf_type = options.buf_type or buf_type
+	centerx = options.buf_type or centerx
+	centery = options.buf_type or centery
 	if options.center ~= nil then
 		center = options.center
 		if center == true and options.center_individually ~= nil then
