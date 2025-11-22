@@ -69,7 +69,12 @@ local function draw(buf, lines)
 		else
 			offset_x = math.floor((screen_dim.x - intro_dim.x) / 2)
 			offset_y = math.floor((screen_dim.y - intro_dim.y) / 2)
-
+			if not centerx then
+				offset_x = 0
+			end
+			if not centery then
+				offset_y = 0
+			end
 			if centery then
 				for _ = 0, offset_y do
 					table.insert(spaces, "")
@@ -86,9 +91,18 @@ local function draw(buf, lines)
 		for _, line in ipairs(lines) do
 			local tmpdim = get_intro_dimensions({ line })
 			offset_x = math.floor((screen_dim.x - tmpdim.x) / 2)
+			if not centerx then
+				offset_x = 0
+			end
+			if not centery then
+				offset_y = 0
+			end
 			spacesx = ""
-			for _ = 0, offset_x do
-				spacesx = spacesx .. " "
+
+			if centerx then
+				for _ = 0, offset_x do
+					spacesx = spacesx .. " "
+				end
 			end
 			table.insert(centered_lines, spacesx .. line)
 		end
@@ -193,8 +207,13 @@ local function setup(options)
 	widechar = options.widechar or widechar
 	buf_name = options.buf_name or buf_name
 	buf_type = options.buf_type or buf_type
-	centerx = options.buf_type or centerx
-	centery = options.buf_type or centery
+
+	if options.centerx ~= nil then
+		centerx = options.centerx
+	end
+	if options.centery ~= nil then
+		centery = options.centery
+	end
 	if options.center ~= nil then
 		center = options.center
 		if center == true and options.center_individually ~= nil then
