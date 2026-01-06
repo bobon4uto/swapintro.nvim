@@ -135,31 +135,11 @@ local function delete_buf(buff)
 	vim.api.nvim_buf_delete(buff, { force = true })
 end
 
---ugly workaround tbh, but im not that smart.
-local id = -1
-local autocmd_id = -1
-local function trymatchdelete()
-	if id ~= -1 then
-		vim.fn.matchdelete(id)
-	end
-	id = -1
-	vim.api.nvim_del_autocmd(autocmd_id)
-end
-
-local function line80fix()
-	vim.opt_local.colorcolumn = "0"              -- disable colorcolumn
-	id = vim.fn.matchadd("Normal", "\\%>80c", 12) --disable error for 80+
-	autocmd_id = vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-		pattern = { "*" },
-		callback = trymatchdelete,
-	}) -- logic to reanable it after entering any other buffer
-end
 local function set_options()
 	vim.opt_local.number = false           -- disable line numbers
 	vim.opt_local.relativenumber = false   -- disable relative line numbers
 	vim.opt_local.list = false             -- disable displaying whitespace
 	vim.opt_local.fillchars = { eob = " " } -- do not display "~"
-	line80fix()                            -- disable 80 character line and error
 end
 
 local function create_intro_buf()
